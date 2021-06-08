@@ -1,0 +1,44 @@
+version: '3'
+services:
+
+  emby:
+    container_name: emby
+    image: emby/embyserver
+    ports:
+      - 8096:8096 # HTTP port
+      - 8920:8920 # HTTPS port
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./emby_config:/config
+      - ./medias:/data
+
+  filebrowser:
+    container_name: filebrowser
+    image: filebrowser/filebrowser
+    ports:
+      - 8081:80 # WebUI
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - ./medias/complete:/srv
+      - ./filebrowser/database.db:/database.db
+
+  transmission:
+    container_name: transmission
+    image: ghcr.io/linuxserver/transmission
+    ports:
+      - 9091:9091 # WebUI
+      - 51413:51413 # Torrent Port TCP
+      - 51413:51413/udp # Torrent Port UDP
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=Europe/Paris
+      - TRANSMISSION_WEB_HOME=/transmission-web-control/
+    volumes:
+      - ./transmission/config:/config
+      - ./transmission/watch:/watch
+      - ./medias:/downloads
